@@ -44,7 +44,7 @@ public class RequestAspect {
 
 	@Around("pointCut()")
 	public Object doAround(ProceedingJoinPoint pjp) throws Throwable {
-		
+
 		Object[] args = pjp.getArgs();
 		ParamsBody paramsBody = null;
 		HttpServletRequest request = null;
@@ -81,39 +81,17 @@ public class RequestAspect {
 				ReturnBody returnbody = new ReturnBody();
 
 				if (user) {
-					String authorization = request.getHeader("Authorization");
-					if (StringUtils.isEmpty(authorization)) {
+					String token = request.getHeader("Token");
+					if (StringUtils.isEmpty(token)) {
 						returnbody.setStatus(ResponseState.INVALID_TOKEN);
-						returnbody.setMsg("Authorization 为空");
-						// LogUtil.error(method.getName() + "Authorization 为空");
+						returnbody.setMsg("token 为空");
 						return returnbody;
 					}
-					// String usertoken = SystemUtil.getToken(authorization);
-					// if(StringUtils.isEmpty(usertoken)){
-					// returnbody.setStatus(ResponseState.INVALID_TOKEN);
-					// returnbody.setMsg( "token为空");
-					// LogUtil.error(method.getName() + "token为空");
-					// return returnbody;
-					// }else{
-					// BoundHashOperations<String, String, String> userToken =
-					// redis.boundHashOps("userToken");
-					// String token = userToken.get(usertoken);
-					// if(StringUtils.isEmpty(token)){
-					// returnbody.setStatus(ResponseState.INVALID_TOKEN);
-					// returnbody.setMsg( "无效token");
-					// LogUtil.error(method.getName() + "无效token");
-					// return returnbody;
-					// }else{
-					// long token_time = Long.parseLong(token.split(",")[1]);
-					// long timestamp = System.currentTimeMillis();
-					// if(timestamp > token_time){
-					// returnbody.setStatus(ResponseState.INVALID_TOKEN);
-					// returnbody.setMsg( "token过期");
-					// LogUtil.error(method.getName() + "token过期，失效");
-					// return returnbody;
-					// }
-					// }
-					// }
+					if (StringUtils.isEmpty(token)) {
+						returnbody.setStatus(ResponseState.INVALID_TOKEN);
+						returnbody.setMsg("token为空");
+						return returnbody;
+					}
 				}
 
 				String[] fields = value.split(",");
@@ -124,26 +102,11 @@ public class RequestAspect {
 						if (StringUtils.isEmpty(keyValue)) {
 							returnbody.setStatus(ResponseState.FAILED);
 							returnbody.setMsg("入参" + filed + "值为空");
-							// LogUtil.error(method.getName() + "入参" + filed + "值为空");
 							return returnbody;
 						}
 					}
 				}
 
-				// Class clazz = ParamsBody.class;
-				// String getName = null;
-				// Method getMethod = null;
-				// Object keyValue = null;
-				// for (int j = 0; j < values.length; j++) {
-				// getName = "get" + values[j].substring(0, 1).toUpperCase() +
-				// values[j].substring(1);
-				// getMethod = clazz.getMethod(getName, new Class[] {});
-				// keyValue = getMethod.invoke(paramsBody, new Object[] {});
-				// if(StringUtils.isEmpty(keyValue)){
-				// logger.error(method.getName() + "入参" + values[j] + "值为空");
-				// return null;
-				// }
-				// }
 			}
 		}
 		return pjp.proceed();

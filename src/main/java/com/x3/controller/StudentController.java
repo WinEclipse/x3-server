@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.x3.core.ResponseState;
+import com.x3.core.annotation.NotNull;
 import com.x3.core.dto.ParamsBody;
 import com.x3.core.dto.ReturnBody;
 import com.x3.model.Student;
@@ -24,10 +25,13 @@ import com.x3.model.Student;
 @Service
 public class StudentController {
 
-	@RequestMapping(value = "/students", method = RequestMethod.GET, headers = "Accept=application/json")
-	public List<Student> getAll() {
+	@RequestMapping(value = "/students", method = RequestMethod.GET)
+	@NotNull(user = true, value = "")
+	public ReturnBody getAll(HttpServletRequest request) {
+		ReturnBody rbody = new ReturnBody();
+		
 		List<Student> students = new ArrayList<Student>();
-		for (int i = 0; i < 10; i++) {
+		for (int i = 0; i < 5; i++) {
 			Student student = new Student();
 			student.setId("id" + i);
 			student.setName("name" + i);
@@ -35,13 +39,15 @@ public class StudentController {
 			student.setAge(10 + i);
 			students.add(student);
 		}
-		return students;
+		rbody.setData(students);
+		rbody.setStatus(ResponseState.SUCCESS);
+		rbody.setMsg("获取学生列表成功");
+		return rbody;
 	}
 
 	@RequestMapping(value = { "/student" }, method = RequestMethod.POST)
 	@ResponseBody
 	public ReturnBody addStudent(@RequestBody ParamsBody paramsBody, HttpServletRequest request) throws Exception {
-		System.out.println("add student......");
 		ReturnBody rbody = new ReturnBody();
 		try {
 			Map<String, Object> body = paramsBody.getBody();
@@ -49,7 +55,6 @@ public class StudentController {
 
 			Student student = new Student();
 			BeanUtils.populate(student, body);
-			System.out.println("=======" + student.getEmail());
 			rbody.setData(student);
 			rbody.setStatus(ResponseState.SUCCESS);
 			rbody.setMsg("添加成功");
@@ -66,9 +71,7 @@ public class StudentController {
 		ReturnBody rbody = new ReturnBody();
 		Map params = paramsBody.getBody();
 		Student student = new Student();
-		System.out.println("student: " + params.toString());
 		BeanUtils.populate(student, params);
-
 		rbody.setStatus(ResponseState.SUCCESS);
 		rbody.setMsg("修改成功");
 		return rbody;
